@@ -27,7 +27,8 @@
                 </tr>
                 <tr>
                     <td>Zip Code:</td>   
-                    <td><input type="text" name="zip" id="zip"></td>
+                    <td><input type="text" name="zip" id="zip">
+                        <span id="zipError"></span></td>
                 </tr>
                 <tr>
                     <td>City:       <span id="city"></span></td>
@@ -112,10 +113,12 @@
                     data: { "zip": $("#zip").val() },
             
                 success: function(result, status) {
-
-                    $("#city").html(result.city);
-                    $("#latitude").html(result.latitude);
-                    $("#longitude").html(result.longitude);
+                    if(result.available) {
+                        $("#city").html(result.city);
+                        $("#latitude").html(result.latitude);
+                        $("#longitude").html(result.longitude); 
+                    }
+                    $("#zipError").html("Zip code not found.");      
                 }
         }); 
     });

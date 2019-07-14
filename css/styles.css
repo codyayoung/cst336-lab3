@@ -37,6 +37,13 @@ input, select, textarea {
     right: 475px;
 }
 
+#zipError {
+    position: absolute;
+    bottom: 605px;
+    right: 500px;
+    color: red;
+}
+
  form {
     align-content: center;
     position: center;
