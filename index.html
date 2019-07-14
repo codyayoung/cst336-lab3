@@ -113,12 +113,10 @@
                     data: { "zip": $("#zip").val() },
             
                 success: function(result, status) {
-                    if(result.available) {
                         $("#city").html(result.city);
                         $("#latitude").html(result.latitude);
                         $("#longitude").html(result.longitude); 
-                    }
-                    $("#zipError").html("Zip code not found.");      
+                         
                 }
         }); 
     });
