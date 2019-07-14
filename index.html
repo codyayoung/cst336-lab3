@@ -8,6 +8,7 @@
     <body>
         <h1> Sign Up </h1>
 
+        <form method="post">
             First Name: <input type="text" name="fName"><br>
             Last Name:  <input type="text" name="lname"><br>
             Gender:     <input type="radio" name="gender" value="m"> Male
@@ -15,26 +16,94 @@
             
             Zip Code:   <input type="text" name="zip" id="zip"><br>
             City:       <span id="city"></span><br>
-            Latitude:   <br>
-            Longitude   <br><br>
+            Latitude:   <span id="latitude"></span><br>
+            Longitude:  <span id="longitude"></span><br><br>
 
             State:
             <select id="state" name="state">
                 <option value="">Select One</option>
                 <option value="ca">California</option>
+                <option value="nv">Nevada</option>
+                <option value="hi">Hawaii</option>
+                <option value="ak">Alaska</option>
                 <option value="ny">New York</option>
                 <option value="tx">Texas</option>
             </select><br />
 
             Select a County: <select id="county"></select><br><br>
 
-            Desired Username: <input type="text" id="username" name="username"><br>
-            Password:         <input type="password" id="password" name="password"><br>
-            Verify Password:  <input type="password" id="passwordAgain"><br>
+            Desired Username:   <input type="text" id="username" name="username">
+                                <span id="usernameError"></span><br>
+            Password:           <input type="password" id="password" name="password"><br>
+            Verify Password:    <input type="password" id="passwordAgain"><br>
 
             <input type="submit" value="Sign Up">
+        </form>
+    <script>
+        //Displaying city from API after typing a ZIP code
+        $("#zip").on("change", function(){
+
+            //alert($("#zip").val());
+            $.ajax({
+                method: "GET",
+                url: "https://cst336.herokuapp.com/projects/api/cityInfoAPI.php",
+                dataType: "json",
+                    data: { "zip": $("#zip").val() },
+            
+                success: function(result, status) {
+
+                    $("#city").html(result.city);
+                    $("#latitude").html(result.latitude);
+                    $("#longitude").html(result.longitude);
+                }
+        }); 
+    });
+
+        $("#state").on("change", function(){
+
+            $.ajax({
+                method: "GET",
+                url: "https://cst336.herokuapp.com/projects/api/countyListAPI.php",
+                dataType: "json",
+                    data: { "state": $("#state").val() },
+
+                success: function(result, status) {
+
+                    $("#county").html("<option> Select One </option>");
+                    for (let i=0; i < result.length; i++){
+                        $("#county").append("<option>" + result[i].county + "</option>");
+                    }
+
+                }
+        }); 
+    });
+
+        $("#username").change(function() {
+
+            //alert($("#username").val());
+            $.ajax({
+                method: "GET",
+                url: "https://cst336.herokuapp.com/projects/api/usernamesAPI.php",
+                dataType: "json",
+                    data: { "username": $("#username").val() },
+
+                success: function(result, status) {
+                    
+                    if (result.available) {
+                        $("#usernameError").html("Username is available.");
+                        $("#usernameError").css("color", "green");
+                    }
+                    else {
+                        $("#usernameError").html("Username is not available.");
+                        $("#usernameError").css("color", "red");
+                    }
+
+                }
+        });
+    });
 
 
+    </script>
         
     </body>
 
