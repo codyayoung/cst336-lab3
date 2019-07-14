@@ -8,7 +8,7 @@
     <body>
         <h1> Sign Up </h1>
 
-        <form method="post">
+        <form id="signupForm" method="post" action="welcome.html">
             First Name: <input type="text" name="fName"><br>
             Last Name:  <input type="text" name="lname"><br>
             Gender:     <input type="radio" name="gender" value="m"> Male
@@ -22,25 +22,42 @@
             State:
             <select id="state" name="state">
                 <option value="">Select One</option>
-                <option value="ca">California</option>
-                <option value="nv">Nevada</option>
-                <option value="hi">Hawaii</option>
-                <option value="ak">Alaska</option>
-                <option value="ny">New York</option>
-                <option value="tx">Texas</option>
+                <option value=''></option>
             </select><br />
 
             Select a County: <select id="county"></select><br><br>
 
             Desired Username:   <input type="text" id="username" name="username">
-                                <span id="usernameError"></span><br>
-            Password:           <input type="password" id="password" name="password"><br>
-            Verify Password:    <input type="password" id="passwordAgain"><br>
+                                <span id="usernameError"></span> <br>
+            Password:           <input type="password" id="password" name="password"> <br>
+            Verify Password:    <input type="password" id="passwordAgain"> <br>
+                                <span id="passwordAgainError"></span> <br><br>
 
             <input type="submit" value="Sign Up">
         </form>
     <script>
-        //Displaying city from API after typing a ZIP code
+
+        var usernameAvailable = false;
+
+        // Populates initial state list
+        $(document).ready(function(){
+            $.ajax({
+                method: "GET",
+                url: "https://cst336.herokuapp.com/projects/api/state_abbrAPI.php",
+                dataType: "json",
+                    data: { "usps": $("#usps").val() },
+            
+                success: function(result, status) {
+                    for (let i=0; i < result.length; i++) {
+                        //$("#state").append("<option>" +  result[i].usps + "</option>");
+                        $("#state").append("<option value='" +  result[i].usps +"'>" + result[i].state + "</option>");
+                    }    
+                }
+        }); 
+
+    });
+
+        // Displaying city from API after typing a ZIP code
         $("#zip").on("change", function(){
 
             //alert($("#zip").val());
@@ -59,8 +76,8 @@
         }); 
     });
 
+        // Adds state and county options to dropdown select menus 
         $("#state").on("change", function(){
-
             $.ajax({
                 method: "GET",
                 url: "https://cst336.herokuapp.com/projects/api/countyListAPI.php",
@@ -70,14 +87,15 @@
                 success: function(result, status) {
 
                     $("#county").html("<option> Select One </option>");
-                    for (let i=0; i < result.length; i++){
-                        $("#county").append("<option>" + result[i].county + "</option>");
+                    for (let j=0; j < result.length; j++){
+                        $("#county").append("<option>" + result[j].county + "</option>");
                     }
 
                 }
         }); 
     });
 
+        // Checks if username is available 
         $("#username").change(function() {
 
             //alert($("#username").val());
@@ -92,19 +110,56 @@
                     if (result.available) {
                         $("#usernameError").html("Username is available.");
                         $("#usernameError").css("color", "green");
+                        usernameAvailable = true;
                     }
                     else {
                         $("#usernameError").html("Username is not available.");
                         $("#usernameError").css("color", "red");
+                        usernameAvailable = false;
                     }
 
                 }
         });
     });
 
+    
+    $("#signupForm").on("submit", function(event) {
 
-    </script>
-        
+        if(!isFormValid()) {
+            event.preventDefault();
+        }
+
+    });
+
+    function isFormValid() {
+        var isValid = true;
+        if (!usernameAvailable) {
+            isValid = false;
+        }
+
+        if ($("#username").val().length == 0) {
+            isValid = false;
+            $("#usernameError").html("Username is required.");
+            $("#usernameError").css("color", "red");
+        }
+
+        if ($("#password").val().length < 6) {
+            $("#passwordAgainError").html("Passwords must be at least six characters long.");
+            $("#passwordAgainError").css("color", "red");
+            isValid = false;
+        }
+
+        if ($("#password").val() != $("#passwordAgain").val()){
+            $("#passwordAgainError").html("Passwords do not match.");
+            $("#passwordAgainError").css("color", "red");
+            isValid = false;
+        }
+
+        return isValid;
+    }
+
+    </script>    
+
     </body>
 
 </html>
